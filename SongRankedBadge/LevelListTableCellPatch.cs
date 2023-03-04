@@ -13,7 +13,6 @@ namespace SongRankedBadge
     [HarmonyPatch(typeof(LevelListTableCell), nameof(LevelListTableCell.SetDataFromLevelAsync))]
     public class LevelListTableCellPatch
     {
-
         [HarmonyPrefix]
         static void Prefix(ref IPreviewBeatmapLevel level, ref bool isPromoted, out bool __state)
         {
@@ -38,18 +37,20 @@ namespace SongRankedBadge
         }
 
         [HarmonyPostfix]
-        static void Postfix(GameObject ___promoBackgroundGo, GameObject ___promoBadgeGo, bool __state)
+        static void Postfix(GameObject ____promoBackgroundGo, GameObject ____promoBadgeGo, bool __state)
         {
             try
             {
-                ___promoBackgroundGo.SetActive(!__state);
-                var promoTextGo = ___promoBadgeGo.transform.Find("PromoText").gameObject;
+                var promoTextGo = ____promoBadgeGo.transform.Find("PromoText").gameObject;
                 // UObject.Destroy(promoTextGo.GetComponent<LocalizedTextMeshProUGUI>()); // can't simply destroy the script, this cell may be reused.
                 var localization = promoTextGo.GetComponent<LocalizedTextMeshProUGUI>();
                 localization.enabled = !__state; // no more translation :)
-                
+
                 if (__state)
                 {
+                    // turn off the promotion background
+                    ____promoBackgroundGo.SetActive(false);
+                    // and change the text
                     var promoText = promoTextGo.GetComponent<TMP_Text>();
 
                     if (!Equals(promoText, null))

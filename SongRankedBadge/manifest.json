@@ -5,7 +5,7 @@
   "author": "qe201020335",
   "version": "0.0.1",
   "description": "Show a map's rank status using the promotion badge thingy introduced in 1.28.0",
-  "gameVersion": "1.28.0_4124315132",
+  "gameVersion": "1.28.0",
   "dependsOn": {
     "BSIPA": "^4.2.0",
     "SongDetailsCache": "^1.2.1",
