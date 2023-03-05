@@ -22,7 +22,7 @@ namespace SongRankedBadge
 
         private readonly Harmony _harmony = new Harmony("com.github.qe201020335.SongRankedBadge");
 
-        internal static SongDetails? SongDetails = null;
+        internal static SongDetails SongDetails = null!;
 
         [Init]
         /// <summary>
@@ -54,22 +54,13 @@ namespace SongRankedBadge
         public async void OnApplicationStart()
         {
             Log.Debug("OnApplicationStart");
-            // new GameObject("SongRankedBadgeController").AddComponent<SongRankedBadgeController>();
-            SongDetailsContainer.dataAvailableOrUpdated += async () =>
-            {
-                SongDetails = null;
-                SongDetails = await SongDetails.Init();
-            };
-            
             SongDetails = await SongDetails.Init();
-
         }
 
         [OnExit]
         public void OnApplicationQuit()
         {
             Log.Debug("OnApplicationQuit");
-
         }
     }
 }
