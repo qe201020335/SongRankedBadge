@@ -55,6 +55,10 @@ namespace SongRankedBadge
         {
             Log.Debug("OnApplicationStart");
             SongDetails = await SongDetails.Init();
+            SongCore.Loader.SongsLoadedEvent += (loader, levels) =>
+            {
+                RankStatusCacheManager.Instance.Init(levels.Values);
+            };
         }
 
         [OnExit]

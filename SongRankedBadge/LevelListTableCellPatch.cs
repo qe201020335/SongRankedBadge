@@ -22,11 +22,8 @@ namespace SongRankedBadge
                 if (level is CustomPreviewBeatmapLevel customLevel)
                 {
                     var hash = SongCore.Utilities.Hashing.GetCustomLevelHash(customLevel);
-                    if (Plugin.SongDetails.songs.FindByHash(hash, out var song))
-                    {
-                        __state = song.rankedStatus == RankedStatus.Ranked;
-                        isPromoted = isPromoted || __state;
-                    }
+                    __state = RankStatusCacheManager.Instance.GetSongRankedStatus(hash) != RankStatus.None;
+                    isPromoted = isPromoted || __state;
                 }
             }
             catch (Exception e)
