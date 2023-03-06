@@ -20,17 +20,21 @@ namespace SongRankedBadge.RankingProviders
             var options = new ParallelOptions
             {
                 CancellationToken = cancellationToken,
-                MaxDegreeOfParallelism = 16
+                MaxDegreeOfParallelism = 64
             };
 
             try
             {
                 Parallel.ForEach(levels, options, level =>
                 {
+                    if (level.levelID.ToLower().EndsWith("wip")) return;
+                    var hash = SongCore.Utilities.Hashing.GetCustomLevelHash(level);
+#if DEBUG
+                    Plugin.Log.Info($"Getting rank status for {level.levelID}");
+#endif
                     try
                     {
                         var client = new WebClient();
-                        var hash = SongCore.Utilities.Hashing.GetCustomLevelHash(level);
                         var res = JObject.Parse(client.DownloadString(RequestURL + hash));
                         var ranked = res?["difficulties"]?.Any(token => token["status"]?.ToObject<int>() == 3) ?? false;
                         result[hash] = ranked;
@@ -38,7 +42,11 @@ namespace SongRankedBadge.RankingProviders
                     catch (Exception e)
                     {
                         Plugin.Log.Warn($"Cannot get BeatLeader rank status for {level.levelID}: {e.Message}");
-                        Plugin.Log.Debug(e);
+                        if (e.Message.Contains("404")) result[hash] = false;
+                        if (!(e is WebException))
+                        {
+                            Plugin.Log.Debug(e);
+                        }
                     }
 
                     if (cancellationToken.IsCancellationRequested) throw new Exception("Operation Cancelled");
@@ -48,8 +56,8 @@ namespace SongRankedBadge.RankingProviders
             {
                 Plugin.Log.Warn("Get rank status from BeatLeader is Cancelled");
             }
-            
-            Plugin.Log.Debug("Get rank status from BeatLeader returned");
+
+            Plugin.Log.Debug("Get rank status from BeatLeader Finished");
             return Task.FromResult(result as IDictionary<string, bool>);
         }
     }

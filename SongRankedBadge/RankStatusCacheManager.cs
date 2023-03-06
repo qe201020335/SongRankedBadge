@@ -12,60 +12,75 @@ namespace SongRankedBadge
     {
         internal static readonly RankStatusCacheManager Instance = new RankStatusCacheManager();
 
-        private readonly Dictionary<string, RankStatus> _cache = new Dictionary<string, RankStatus>();
+        private readonly Dictionary<string, bool> _blCache = new Dictionary<string, bool>();
 
         private readonly IRankingProvider _beatLeader = new BeatLeaderRanking();
-        
-        private CancellationTokenSource? _tokenSource = null;
-        
+
+        private CancellationTokenSource? _tokenSource;
+
         // This will be called everytime SongCore finishes refreshing
         internal void Init(ICollection<CustomPreviewBeatmapLevel> levels)
         {
-            Plugin.Log.Info("Start refreshing song ranked status");
+            Plugin.Log.Info("Start refreshing song ranked status cache");
             _tokenSource?.Cancel();
             _tokenSource?.Dispose();
-            var cancel =  new CancellationTokenSource();
+            var cancel = new CancellationTokenSource();
             _tokenSource = cancel;
-            Task.Run( async () =>
+            Task.Run(async () =>
             {
-                var blRankings = await _beatLeader.GetRankedStatus(levels, cancel.Token);
+                var missing = levels.Where(level => !_blCache.ContainsKey(SongCore.Utilities.Hashing.GetCustomLevelHash(level))).ToList();
 
-                if (cancel.IsCancellationRequested) return;
-
-                foreach (var level in levels)
+                if (missing.Count == 0)
                 {
-                    var hash = SongCore.Utilities.Hashing.GetCustomLevelHash(level);
-                    var ssRank = Plugin.SongDetails.songs.FindByHash(hash, out var song) && song.rankedStatus == RankedStatus.Ranked;
-                    var blRank = blRankings.TryGetValue(hash, out var ranked) && ranked;
-                    if (ssRank && blRank)
-                    {
-                        _cache[hash] = RankStatus.Both;
-                    }
-                    else if (blRank)
-                    {
-                        _cache[hash] = RankStatus.BeatLeader;
-                    }
-                    else if (ssRank)
-                    {
-                        _cache[hash] = RankStatus.ScoreSaber;
-                    }
-                    else
-                    {
-                        _cache[hash] = RankStatus.None;
-                    }
-                    
-                    if (_tokenSource.IsCancellationRequested) break;
+                    Plugin.Log.Info("Nothing to update");
+                    return;
                 }
-                Plugin.Log.Info("Finished refreshing ranked status or cancelled");
-            }, _tokenSource.Token);
-            Plugin.Log.Debug("Start Refreshing method returned");
+                
+                if (cancel.IsCancellationRequested)
+                {
+                    Plugin.Log.Info("Refresh rank status cache cancelled");
+                }
+
+                var blRankings = await _beatLeader.GetRankedStatus(missing, cancel.Token);
+
+                if (cancel.IsCancellationRequested)
+                {
+                    Plugin.Log.Info("Refresh rank status cache cancelled");
+                }
+
+                foreach (var (hash, ranked) in blRankings)
+                {
+                    _blCache[hash] = ranked;
+                    if (cancel.IsCancellationRequested) break;
+                }
+
+                Plugin.Log.Info(cancel.IsCancellationRequested ? "Refresh rank status cancelled" : "Finished refreshing rank status");
+            }, cancel.Token);
         }
 
         internal RankStatus GetSongRankedStatus(string hash)
         {
-            return _cache.TryGetValue(hash, out var status) ? status : RankStatus.None;
-        }
+            var ssRank = Plugin.SongDetails.songs.FindByHash(hash, out var song) && song.rankedStatus == RankedStatus.Ranked;
+            var blRank = _blCache.TryGetValue(hash, out var ranked) && ranked;
+            if (ssRank && blRank)
+            {
+                return RankStatus.Both;
+            }
 
+            if (blRank)
+            {
+                return RankStatus.BeatLeader;
+            }
+
+            if (ssRank)
+            {
+                return RankStatus.ScoreSaber;
+            }
+
+            {
+                return RankStatus.None;
+            }
+        }
     }
 
     internal enum RankStatus
