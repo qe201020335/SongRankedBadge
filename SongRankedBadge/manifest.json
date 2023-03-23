@@ -10,6 +10,6 @@
     "BSIPA": "^4.2.2",
     "SongDetailsCache": "^1.2.1",
     "SongCore": "^3.10.1",
-    "BSML": "^1.6.9"
+    "BeatSaberMarkupLanguage": "^1.6.9"
   }
 }
