@@ -7,5 +7,7 @@ namespace SongRankedBadge.RankingProviders
     public interface IRankingProvider
     {
         Task<IDictionary<string, bool>> GetRankedStatus(ICollection<CustomPreviewBeatmapLevel> levels, CancellationToken cancellationToken);
+        
+        Task<HashSet<string>> GetRankedStatus(CancellationToken cancellationToken);
     }
 }

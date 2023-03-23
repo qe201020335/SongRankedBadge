@@ -14,16 +14,16 @@ namespace SongRankedBadge
     public class LevelListTableCellPatch
     {
         [HarmonyPrefix]
-        static void Prefix(ref IPreviewBeatmapLevel level, ref bool isPromoted, out bool __state)
+        static void Prefix(ref IPreviewBeatmapLevel level, ref bool isPromoted, out RankStatus __state)
         {
-            __state = false;
+            __state = RankStatus.None;
             try
             {
                 if (level is CustomPreviewBeatmapLevel customLevel)
                 {
                     var hash = SongCore.Utilities.Hashing.GetCustomLevelHash(customLevel);
-                    __state = RankStatusCacheManager.Instance.GetSongRankedStatus(hash) != RankStatus.None;
-                    isPromoted = isPromoted || __state;
+                    __state = RankStatusCacheManager.Instance.GetSongRankedStatus(hash);
+                    isPromoted = isPromoted || __state != RankStatus.None;
                 }
             }
             catch (Exception e)
@@ -34,16 +34,17 @@ namespace SongRankedBadge
         }
 
         [HarmonyPostfix]
-        static void Postfix(GameObject ____promoBackgroundGo, GameObject ____promoBadgeGo, bool __state)
+        static void Postfix(GameObject ____promoBackgroundGo, GameObject ____promoBadgeGo, RankStatus __state)
         {
             try
             {
+                var isRanked = __state != RankStatus.None;
                 var promoTextGo = ____promoBadgeGo.transform.Find("PromoText").gameObject;
                 // UObject.Destroy(promoTextGo.GetComponent<LocalizedTextMeshProUGUI>()); // can't simply destroy the script, this cell may be reused.
                 var localization = promoTextGo.GetComponent<LocalizedTextMeshProUGUI>();
-                localization.enabled = !__state; // no more translation :)
+                localization.enabled = !isRanked; // no more translation :)
 
-                if (__state)
+                if (isRanked)
                 {
                     // turn off the promotion background
                     ____promoBackgroundGo.SetActive(false);
@@ -52,8 +53,24 @@ namespace SongRankedBadge
 
                     if (!Equals(promoText, null))
                     {
-                        promoText.text = "Ranked!";
+                        // TODO: Change badge color 
+                        switch (__state)
+                        {
+                            case RankStatus.Ranked:
+                                promoText.text = "Ranked";
+                                break;
+                            case RankStatus.ScoreSaber:
+                                promoText.text = "SS Ranked";
+                                break;
+                            case RankStatus.BeatLeader:
+                                promoText.text = "BL Ranked";
+                                break;
+                        }
                     }
+                }
+                else
+                {
+                    // TODO: Change badge color back
                 }
             }
             catch (Exception e)

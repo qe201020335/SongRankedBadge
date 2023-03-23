@@ -36,6 +36,7 @@ namespace SongRankedBadge
             Log = logger;
             Log.Info("SongRankedBadge initialized.");
             _harmony.PatchAll(Assembly.GetExecutingAssembly());
+            RankStatusCacheManager.Instance.Init();
         }
 
         #region BSIPA Config
@@ -55,10 +56,10 @@ namespace SongRankedBadge
         {
             Log.Debug("OnApplicationStart");
             SongDetails = await SongDetails.Init();
-            SongCore.Loader.SongsLoadedEvent += (loader, levels) =>
-            {
-                RankStatusCacheManager.Instance.Init(levels.Values);
-            };
+            // SongCore.Loader.SongsLoadedEvent += (loader, levels) =>
+            // {
+            //     RankStatusCacheManager.Instance.Init(levels.Values);
+            // };
         }
 
         [OnExit]
