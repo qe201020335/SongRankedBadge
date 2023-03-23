@@ -11,6 +11,8 @@ using SongDetailsCache;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using IPALogger = IPA.Logging.Logger;
+using BeatSaberMarkupLanguage;
+using BeatSaberMarkupLanguage.MenuButtons;
 
 namespace SongRankedBadge
 {
@@ -23,49 +25,45 @@ namespace SongRankedBadge
         private readonly Harmony _harmony = new Harmony("com.github.qe201020335.SongRankedBadge");
 
         internal static SongDetails SongDetails = null!;
+        
+        private MenuButton MenuButton = new MenuButton("Ranked Badge", "PromoBadge? RankedBadge!", OnMenuButtonClick);
+        
+        private UI.ConfigViewFlowCoordinator? _configViewFlowCoordinator;
 
         [Init]
-        /// <summary>
-        /// Called when the plugin is first loaded by IPA (either when the game starts or when the plugin is enabled if it starts disabled).
-        /// [Init] methods that use a Constructor or called before regular methods like InitWithConfig.
-        /// Only use [Init] with one Constructor.
-        /// </summary>
-        public void Init(IPALogger logger)
+        public void InitWithConfig(IPALogger logger, IPA.Config.Config conf)
         {
             Instance = this;
             Log = logger;
             Log.Info("SongRankedBadge initialized.");
-            _harmony.PatchAll(Assembly.GetExecutingAssembly());
             RankStatusCacheManager.Instance.Init();
-        }
-
-        #region BSIPA Config
-        //Uncomment to use BSIPA's config
-        /*
-        [Init]
-        public void InitWithConfig(Config conf)
-        {
             Configuration.PluginConfig.Instance = conf.Generated<Configuration.PluginConfig>();
             Log.Debug("Config loaded");
+            _harmony.PatchAll(Assembly.GetExecutingAssembly());
         }
-        */
-        #endregion
 
         [OnStart]
         public async void OnApplicationStart()
         {
             Log.Debug("OnApplicationStart");
+            MenuButtons.instance.RegisterButton(MenuButton);
             SongDetails = await SongDetails.Init();
-            // SongCore.Loader.SongsLoadedEvent += (loader, levels) =>
-            // {
-            //     RankStatusCacheManager.Instance.Init(levels.Values);
-            // };
         }
 
         [OnExit]
         public void OnApplicationQuit()
         {
             Log.Debug("OnApplicationQuit");
+            MenuButtons.instance.UnregisterButton(MenuButton);
+        }
+        
+        private static void OnMenuButtonClick()
+        {
+            if (Instance._configViewFlowCoordinator == null)
+            {
+                Instance._configViewFlowCoordinator = BeatSaberUI.CreateFlowCoordinator<UI.ConfigViewFlowCoordinator>();
+            }
+            BeatSaberUI.MainFlowCoordinator.PresentFlowCoordinator(Instance._configViewFlowCoordinator);
         }
     }
 }

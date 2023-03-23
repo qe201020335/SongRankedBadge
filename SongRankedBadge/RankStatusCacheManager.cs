@@ -62,7 +62,11 @@ namespace SongRankedBadge
 
         internal void Init()
         {
-            Task.Factory.StartNew(async () => { _blRanked = await _beatLeader.GetRankedStatus(CancellationToken.None); });
+            Task.Factory.StartNew(async () =>
+            {
+                _blRanked = await _beatLeader.GetRankedStatus(CancellationToken.None); 
+                Plugin.Log.Info($"Loaded {_blRanked.Count} ranked songs from BeatLeader");
+            });
         }
 
         internal RankStatus GetSongRankedStatus(string hash)

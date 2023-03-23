@@ -46,7 +46,11 @@
       <HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
+      <Reference Include="BSML">
+          <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
+          <Private>false</Private>
+      </Reference>
+      <Reference Include="Newtonsoft.Json">
       <HintPath>$(BeatSaberDir)\Libs\Newtonsoft.Json.dll</HintPath>
       <Private>false</Private>
     </Reference>
@@ -121,6 +125,8 @@
     <Compile Include="RankingProviders\BeatLeaderRanking.cs" />
     <Compile Include="RankingProviders\IRankingProvider.cs" />
     <Compile Include="RankStatusCacheManager.cs" />
+    <Compile Include="UI\ConfigViewFlowCoordinator.cs" />
+    <Compile Include="UI\SettingMenuController.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
@@ -135,6 +141,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="UI\configMenu.bsml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
