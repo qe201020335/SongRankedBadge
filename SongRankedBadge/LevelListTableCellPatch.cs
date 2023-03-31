@@ -37,53 +37,53 @@ namespace SongRankedBadge
             [RankStatus.ScoreSaber] = "SS Ranked"
         };
 
-        [HarmonyPrefix]
-        static void Prefix(ref IPreviewBeatmapLevel level, ref bool isPromoted, out RankStatus __state)
+        [HarmonyPostfix]
+        static void Postfix(ref IPreviewBeatmapLevel level, ref bool isPromoted, GameObject ____promoBadgeGo)
         {
-            __state = RankStatus.None;
             if (!PluginConfig.Instance.ModEnable) return;
+            
+            RankStatus rankedStatus = RankStatus.None;
             try
             {
                 if (level is CustomPreviewBeatmapLevel customLevel)
                 {
                     var hash = SongCore.Utilities.Hashing.GetCustomLevelHash(customLevel);
-                    __state = RankStatusCacheManager.Instance.GetSongRankedStatus(hash);
-                    isPromoted = isPromoted || __state != RankStatus.None;
+                    rankedStatus = RankStatusCacheManager.Instance.GetSongRankedStatus(hash);
                 }
             }
             catch (Exception e)
             {
                 Plugin.Log.Warn($"Cannot get rank status: {e.Message}");
                 Plugin.Log.Debug(e);
+                return;
             }
-        }
 
-        [HarmonyPostfix]
-        static void Postfix(GameObject ____promoBackgroundGo, GameObject ____promoBadgeGo, RankStatus __state)
-        {
-            if (!PluginConfig.Instance.ModEnable) return;
+#if DEBUG
+            Plugin.Log.Debug($"{level.songName}: {rankedStatus}");
+#endif
+            
             try
             {
-                var isRanked = __state != RankStatus.None;
+                var isRanked = rankedStatus != RankStatus.None;
+                
+                ____promoBadgeGo.SetActive(isPromoted || isRanked);
+
                 var promoTextGo = ____promoBadgeGo.transform.Find("PromoText").gameObject;
-                // UObject.Destroy(promoTextGo.GetComponent<LocalizedTextMeshProUGUI>()); // can't simply destroy the script, this cell may be reused.
                 var localization = promoTextGo.GetComponent<LocalizedTextMeshProUGUI>();
                 var promoTextBg = ____promoBadgeGo.GetComponent<ImageView>();
-                localization.enabled = !isRanked; // no more translation :)
+                // can't simply destroy the script, this cell may be reused.
+                localization.enabled = !isRanked; // no more translation :) 
 
                 if (isRanked)
                 {
-                    // turn off the promotion background
-                    ____promoBackgroundGo.SetActive(false);
-
-                    // and change the text and badge color
+                    // change the text and badge color
                     var promoText = promoTextGo.GetComponent<TMP_Text>();
                     if (PluginConfig.Instance.DifferentColor)
                     {
-                        promoTextBg.color = Colors[__state];
+                        promoTextBg.color = Colors[rankedStatus];
                     }
 
-                    promoText.text = PluginConfig.Instance.DifferentText ? Texts[__state] : Texts[RankStatus.Ranked];
+                    promoText.text = PluginConfig.Instance.DifferentText ? Texts[rankedStatus] : Texts[RankStatus.Ranked];
                 }
                 else
                 {
