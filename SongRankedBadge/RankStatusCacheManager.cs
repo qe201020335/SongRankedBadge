@@ -18,48 +18,6 @@ namespace SongRankedBadge
 
         private readonly IRankingProvider _beatLeader = new BeatLeaderRanking();
 
-        private CancellationTokenSource? _tokenSource;
-
-        // This will be called everytime SongCore finishes refreshing
-        // internal void Init(ICollection<CustomPreviewBeatmapLevel> levels)
-        // {
-        //     Plugin.Log.Info("Start refreshing song ranked status cache");
-        //     _tokenSource?.Cancel();
-        //     _tokenSource?.Dispose();
-        //     var cancel = new CancellationTokenSource();
-        //     _tokenSource = cancel;
-        //     Task.Run(async () =>
-        //     {
-        //         var missing = levels.Where(level => !_blCache.ContainsKey(SongCore.Utilities.Hashing.GetCustomLevelHash(level))).ToList();
-        //
-        //         if (missing.Count == 0)
-        //         {
-        //             Plugin.Log.Info("Nothing to update");
-        //             return;
-        //         }
-        //         
-        //         if (cancel.IsCancellationRequested)
-        //         {
-        //             Plugin.Log.Info("Refresh rank status cache cancelled");
-        //         }
-        //
-        //         var blRankings = await _beatLeader.GetRankedStatus(missing, cancel.Token);
-        //
-        //         if (cancel.IsCancellationRequested)
-        //         {
-        //             Plugin.Log.Info("Refresh rank status cache cancelled");
-        //         }
-        //
-        //         foreach (var (hash, ranked) in blRankings)
-        //         {
-        //             _blCache[hash] = ranked;
-        //             if (cancel.IsCancellationRequested) break;
-        //         }
-        //
-        //         Plugin.Log.Info(cancel.IsCancellationRequested ? "Refresh rank status cancelled" : "Finished refreshing rank status");
-        //     }, cancel.Token);
-        // }
-
         internal void Init()
         {
             Task.Factory.StartNew(async () =>

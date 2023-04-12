@@ -9,7 +9,7 @@ namespace SongRankedBadge.Configuration
     {
         public static PluginConfig Instance { get; set; } = null!;
         public virtual bool ModEnable { get; set; } = true;
-        public virtual bool DifferentText { get; set; } = false;
+        public virtual bool DifferentText { get; set; } = true;
         public virtual bool DifferentColor { get; set; } = true;
     }
 }

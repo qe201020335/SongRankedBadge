@@ -14,62 +14,13 @@ namespace SongRankedBadge.RankingProviders
 {
     public class BeatLeaderRanking : IRankingProvider
     {
-        private const string RequestURL = @"https://api.beatleader.xyz/map/hash/";
         private const string RankedPlaylist = @"https://api.beatleader.xyz/playlist/ranked";
 
-        private readonly string DataFolderPath = Path.Combine(UnityGame.UserDataPath, "SongRankedStatus");
-        private const string RankedSongDataName = @"RankedSongs.json";
+        private readonly string DataFolderPath = Path.Combine(UnityGame.UserDataPath, "SongRankedBadge");
+        private const string RankedSongDataName = @"BeatLeaderRankedSongs.json";
 
         private const int Retry = 3;
         private const int RetryDelayMilli = 30 * 1000;
-
-        public Task<IDictionary<string, bool>> GetRankedStatus(ICollection<CustomPreviewBeatmapLevel> levels, CancellationToken cancellationToken)
-        {
-            Plugin.Log.Debug("Start Get rank status from BeatLeader");
-            var result = new ConcurrentDictionary<string, bool>(8, levels.Count);
-            var options = new ParallelOptions
-            {
-                CancellationToken = cancellationToken,
-                MaxDegreeOfParallelism = 64
-            };
-
-            try
-            {
-                Parallel.ForEach(levels, options, level =>
-                {
-                    if (level.levelID.ToLower().EndsWith("wip")) return;
-                    var hash = SongCore.Utilities.Hashing.GetCustomLevelHash(level);
-#if DEBUG
-                    Plugin.Log.Info($"Getting rank status for {level.levelID}");
-#endif
-                    try
-                    {
-                        var client = new WebClient();
-                        var res = JObject.Parse(client.DownloadString(RequestURL + hash));
-                        var ranked = res?["difficulties"]?.Any(token => token["status"]?.ToObject<int>() == 3) ?? false;
-                        result[hash] = ranked;
-                    }
-                    catch (Exception e)
-                    {
-                        Plugin.Log.Warn($"Cannot get BeatLeader rank status for {level.levelID}: {e.Message}");
-                        if (e.Message.Contains("404")) result[hash] = false;
-                        if (!(e is WebException))
-                        {
-                            Plugin.Log.Debug(e);
-                        }
-                    }
-
-                    if (cancellationToken.IsCancellationRequested) throw new Exception("Operation Cancelled");
-                });
-            }
-            catch (AggregateException _)
-            {
-                Plugin.Log.Warn("Get rank status from BeatLeader is Cancelled");
-            }
-
-            Plugin.Log.Debug("Get rank status from BeatLeader Finished");
-            return Task.FromResult(result as IDictionary<string, bool>);
-        }
 
         public async Task<HashSet<string>> GetRankedStatus(CancellationToken cancellationToken)
         {
@@ -85,7 +36,7 @@ namespace SongRankedBadge.RankingProviders
                     Plugin.Log.Debug($"Trail {tries} returned nothing");
                     await Task.Delay(RetryDelayMilli, cancellationToken);
                 }
-                catch (TaskCanceledException)
+                catch (OperationCanceledException)
                 {
                     Plugin.Log.Warn("GetRankedStatus Cancelled");
                     break;
@@ -144,7 +95,7 @@ namespace SongRankedBadge.RankingProviders
 #endif
                 var res = JObject.Parse(await client.DownloadStringTaskAsync(RankedPlaylist));
 
-                if (cancellationToken.IsCancellationRequested) throw new TaskCanceledException();
+                cancellationToken.ThrowIfCancellationRequested();
 
                 var newRanked = res?["songs"]?.AsJEnumerable()?.Values<string>("hash")?.ToHashSet();
                 Plugin.Log.Debug($"Fetched {newRanked?.Count} ranked song hashes");
@@ -153,7 +104,7 @@ namespace SongRankedBadge.RankingProviders
                 {
                     cached = newRanked;
                     
-                    if (cancellationToken.IsCancellationRequested) throw new TaskCanceledException();
+                    cancellationToken.ThrowIfCancellationRequested();
 
                     Plugin.Log.Debug("Saving cached data");
                     using var writer = new StreamWriter(filePath, false);
@@ -165,7 +116,7 @@ namespace SongRankedBadge.RankingProviders
                 
                 Plugin.Log.Warn("Fetch returned 0 ranked songs!");
             }
-            catch (TaskCanceledException)
+            catch (OperationCanceledException)
             {
                 Plugin.Log.Warn("Fetch task cancelled, returning what we had before");
             }
