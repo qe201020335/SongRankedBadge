@@ -48,7 +48,7 @@ namespace SongRankedBadge
                 if (level is CustomPreviewBeatmapLevel customLevel)
                 {
                     var hash = SongCore.Utilities.Hashing.GetCustomLevelHash(customLevel);
-                    rankedStatus = RankStatusCacheManager.Instance.GetSongRankedStatus(hash);
+                    rankedStatus = RankStatusManager.Instance.GetSongRankedStatus(hash);
                 }
             }
             catch (Exception e)

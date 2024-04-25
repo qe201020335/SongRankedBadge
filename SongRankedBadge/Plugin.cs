@@ -23,8 +23,6 @@ namespace SongRankedBadge
         internal static IPALogger Log { get; private set; } = null!;
 
         private readonly Harmony _harmony = new Harmony("com.github.qe201020335.SongRankedBadge");
-
-        internal static SongDetails SongDetails = null!;
         
         private MenuButton MenuButton = new MenuButton("Ranked Badge", "PromoBadge? RankedBadge!", OnMenuButtonClick);
         
@@ -36,7 +34,7 @@ namespace SongRankedBadge
             Instance = this;
             Log = logger;
             Log.Info("SongRankedBadge initialized.");
-            RankStatusCacheManager.Instance.Init();
+            RankStatusManager.Instance.Init();
             Configuration.PluginConfig.Instance = conf.Generated<Configuration.PluginConfig>();
             Log.Debug("Config loaded");
             _harmony.PatchAll(Assembly.GetExecutingAssembly());
@@ -47,7 +45,6 @@ namespace SongRankedBadge
         {
             Log.Debug("OnApplicationStart");
             MenuButtons.instance.RegisterButton(MenuButton);
-            SongDetails = await SongDetails.Init();
         }
 
         [OnExit]
