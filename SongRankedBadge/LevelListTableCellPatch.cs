@@ -7,7 +7,7 @@ using SongDetailsCache.Structs;
 using TMPro;
 using UnityEngine;
 using UObject = UnityEngine.Object;
-using Polyglot;
+using BGLib.Polyglot;
 using SongRankedBadge.Configuration;
 
 namespace SongRankedBadge
@@ -38,18 +38,15 @@ namespace SongRankedBadge
         };
 
         [HarmonyPostfix]
-        static void Postfix(ref IPreviewBeatmapLevel level, ref bool isPromoted, GameObject ____promoBadgeGo)
+        static void Postfix(ref BeatmapLevel level, ref bool isPromoted, GameObject ____promoBadgeGo)
         {
             if (!PluginConfig.Instance.ModEnable) return;
             
             RankStatus rankedStatus = RankStatus.None;
             try
             {
-                if (level is CustomPreviewBeatmapLevel customLevel)
-                {
-                    var hash = SongCore.Utilities.Hashing.GetCustomLevelHash(customLevel);
-                    rankedStatus = RankStatusManager.Instance.GetSongRankedStatus(hash);
-                }
+                var hash = SongCore.Utilities.Hashing.GetCustomLevelHash(level);
+                rankedStatus = RankStatusManager.Instance.GetSongRankedStatus(hash);
             }
             catch (Exception e)
             {
