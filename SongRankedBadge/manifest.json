@@ -5,11 +5,11 @@
   "author": "qe201020335",
   "version": "1.0.2+1.36.0",
   "description": "Show a map's rank status using the promotion badge thingy introduced in 1.28.0",
-  "gameVersion": "1.36.0",
+  "gameVersion": "1.37.5",
   "dependsOn": {
     "BSIPA": "^4.2.2",
     "SongDetailsCache": "^1.2.2",
     "SongCore": "^3.13.0",
-    "BeatSaberMarkupLanguage": "^1.9.0"
+    "BeatSaberMarkupLanguage": "^1.12.0"
   }
 }

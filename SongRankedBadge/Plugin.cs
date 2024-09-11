@@ -13,10 +13,12 @@ using UnityEngine.SceneManagement;
 using IPALogger = IPA.Logging.Logger;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.MenuButtons;
+using BeatSaberMarkupLanguage.Util;
 
 namespace SongRankedBadge
 {
     [Plugin(RuntimeOptions.SingleStartInit)]
+    [NoEnableDisable]
     public class Plugin
     {
         internal static Plugin Instance { get; private set; } = null!;
@@ -38,20 +40,13 @@ namespace SongRankedBadge
             Configuration.PluginConfig.Instance = conf.Generated<Configuration.PluginConfig>();
             Log.Debug("Config loaded");
             _harmony.PatchAll(Assembly.GetExecutingAssembly());
+            MainMenuAwaiter.MainMenuInitializing += OnMenuLoad;
         }
-
-        [OnStart]
-        public async void OnApplicationStart()
+        
+        private void OnMenuLoad()
         {
-            Log.Debug("OnApplicationStart");
-            MenuButtons.instance.RegisterButton(MenuButton);
-        }
-
-        [OnExit]
-        public void OnApplicationQuit()
-        {
-            Log.Debug("OnApplicationQuit");
-            MenuButtons.instance.UnregisterButton(MenuButton);
+            Log.Debug("OnMenuLoad");
+            MenuButtons.Instance.RegisterButton(MenuButton);
         }
         
         private static void OnMenuButtonClick()
