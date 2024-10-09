@@ -38,14 +38,14 @@ namespace SongRankedBadge
         };
 
         [HarmonyPostfix]
-        static void Postfix(ref BeatmapLevel level, ref bool isPromoted, GameObject ____promoBadgeGo)
+        static void Postfix(ref BeatmapLevel beatmapLevel, ref bool isPromoted, GameObject ____promoBadgeGo)
         {
             if (!PluginConfig.Instance.ModEnable) return;
             
             RankStatus rankedStatus = RankStatus.None;
             try
             {
-                var hash = SongCore.Utilities.Hashing.GetCustomLevelHash(level);
+                var hash = SongCore.Utilities.Hashing.GetCustomLevelHash(beatmapLevel);
                 rankedStatus = RankStatusManager.Instance.GetSongRankedStatus(hash);
             }
             catch (Exception e)
@@ -56,7 +56,7 @@ namespace SongRankedBadge
             }
 
 #if DEBUG
-            Plugin.Log.Debug($"{level.songName}: {rankedStatus}");
+            Plugin.Log.Debug($"{beatmapLevel.songName}: {rankedStatus}");
 #endif
             
             try
