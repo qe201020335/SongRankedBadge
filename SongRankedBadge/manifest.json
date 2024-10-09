@@ -3,7 +3,7 @@
   "id": "SongRankedBadge",
   "name": "SongRankedBadge",
   "author": "qe201020335",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Show a map's rank status using the promotion badge thingy introduced in 1.28.0",
   "gameVersion": "1.38.0",
   "dependsOn": {
