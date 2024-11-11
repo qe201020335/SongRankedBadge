@@ -3,5 +3,6 @@
         <bool-setting text="Mod Enable" value="ModEnable" apply-on-change="true"/>
         <bool-setting text="Different Text" value="DiffText" hover-hint="Use different badge texts for BL and SS" apply-on-change="true"/>
         <bool-setting text="Different Color" value="DiffColor" hover-hint="Use different badge colors for BL and SS" apply-on-change="true"/>
+        <bool-setting text="Show Settings In Main Menu" value="MenuSettings" hover-hint="Show the mod settings within the Mods tab within the Main Menu" apply-on-change="true"/>
     </vertical>
 </settings-container>

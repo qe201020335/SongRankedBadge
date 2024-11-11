@@ -1,23 +1,22 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BeatSaberMarkupLanguage.ViewControllers;
-using SongRankedBadge.Configuration;
-using TMPro;
 using BeatSaberMarkupLanguage.MenuButtons;
-using BeatSaberMarkupLanguage.Components;
-using UnityEngine;
-using UnityEngine.PlayerLoop;
+using BeatSaberMarkupLanguage.Settings;
+using SongRankedBadge.Configuration;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using UnityEngine;
+using Zenject;
 
 namespace SongRankedBadge.UI
 {
-   // setting controller for menu button
-    [HotReload(RelativePathToLayout = @"configMenu.bsml")]
-    [ViewDefinition("SongRankedBadge.UI.configMenu.bsml")]
-    internal class SettingMenuController : BSMLAutomaticViewController
+    public class ModSettings : MonoBehaviour, IInitializable, INotifyPropertyChanged
     {
         private static PluginConfig Config => PluginConfig.Instance;
+        private GameplaySetupViewController? gameplaySetupViewController;
         public event PropertyChangedEventHandler PropertyChanged = null!;
 
         [UIValue("ModEnable")]
@@ -34,19 +33,31 @@ namespace SongRankedBadge.UI
             set => Config.DifferentText = value;
         }
 
-
         [UIValue("DiffColor")]
         public bool DiffColor
         {
             get => Config.DifferentColor;
             set => Config.DifferentColor = value;
-        }
-
+        }        
+        
         [UIValue("MenuSettings")]
         public bool MenuSettings
         {
             get => Config.SettingsMenuButton;
-            set => Config.SettingsMenuButton = value;
+            set {
+                Config.SettingsMenuButton = value;
+
+                if(value)
+                    MenuButtons.Instance.RegisterButton(Plugin.Instance.MenuButton);
+                else
+                    MenuButtons.Instance.UnregisterButton(Plugin.Instance.MenuButton);
+            }
         }
-    }
+
+        public void Initialize()
+        {
+            BSMLSettings.Instance.AddSettingsMenu("Ranked Badge", "SongRankedBadge.UI.configMenu.bsml", this);
+        }
+    }  
 }
+

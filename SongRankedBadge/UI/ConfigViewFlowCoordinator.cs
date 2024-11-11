@@ -1,5 +1,6 @@
 ﻿using BeatSaberMarkupLanguage;
 using HMUI;
+using SongRankedBadge.Configuration;
 using System;
 
 namespace SongRankedBadge.UI
@@ -41,6 +42,8 @@ namespace SongRankedBadge.UI
         {
             base.BackButtonWasPressed(topController);
             BeatSaberUI.MainFlowCoordinator.DismissFlowCoordinator(this);
+            if(!PluginConfig.Instance.SettingsMenuButton)
+                FindObjectOfType<MenuTransitionsHelper>().RestartGame();
         }
     }
 }

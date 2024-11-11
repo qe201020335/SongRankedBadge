@@ -11,5 +11,6 @@ namespace SongRankedBadge.Configuration
         public virtual bool ModEnable { get; set; } = true;
         public virtual bool DifferentText { get; set; } = true;
         public virtual bool DifferentColor { get; set; } = true;
+        public virtual bool SettingsMenuButton { get; set; } = false;
     }
 }
