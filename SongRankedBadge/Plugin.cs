@@ -11,9 +11,13 @@ using SongDetailsCache;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using IPALogger = IPA.Logging.Logger;
+using Conf = IPA.Config.Config;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.MenuButtons;
 using BeatSaberMarkupLanguage.Util;
+using SongRankedBadge.Installers;
+using SongRankedBadge.Configuration;
+using SiraUtil.Zenject;
 
 namespace SongRankedBadge
 {
@@ -26,12 +30,12 @@ namespace SongRankedBadge
 
         private readonly Harmony _harmony = new Harmony("com.github.qe201020335.SongRankedBadge");
         
-        private MenuButton MenuButton = new MenuButton("Ranked Badge", "PromoBadge? RankedBadge!", OnMenuButtonClick);
+        internal MenuButton MenuButton = new MenuButton("Ranked Badge", "PromoBadge? RankedBadge!", OnMenuButtonClick);
         
         private UI.ConfigViewFlowCoordinator? _configViewFlowCoordinator;
 
         [Init]
-        public void InitWithConfig(IPALogger logger, IPA.Config.Config conf)
+        public Plugin(IPALogger logger, Conf conf, Zenjector zenjector)
         {
             Instance = this;
             Log = logger;
@@ -41,12 +45,15 @@ namespace SongRankedBadge
             Log.Debug("Config loaded");
             _harmony.PatchAll(Assembly.GetExecutingAssembly());
             MainMenuAwaiter.MainMenuInitializing += OnMenuLoad;
+
+            zenjector.UseLogger(logger);
+            zenjector.Install<MenuInstaller>(Location.Menu);
         }
         
         private void OnMenuLoad()
         {
-            Log.Debug("OnMenuLoad");
-            MenuButtons.Instance.RegisterButton(MenuButton);
+            if(PluginConfig.Instance.SettingsMenuButton)
+                MenuButtons.Instance.RegisterButton(MenuButton);
         }
         
         private static void OnMenuButtonClick()
