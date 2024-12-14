@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using SongDetailsCache;
 using SongDetailsCache.Structs;
 
@@ -33,9 +34,11 @@ namespace SongRankedBadge
             if (_songDetails.songs.FindByHash(hash, out var song))
             {
                 var rankedStates = song.rankedStates;
+                var uploadFlags = song.uploadFlags;
                 
                 var ssRank = rankedStates.HasFlag(RankedStates.ScoresaberRanked);
                 var blRank = rankedStates.HasFlag(RankedStates.BeatleaderRanked);
+                var curated = uploadFlags.HasFlag(UploadFlags.Curated);
                 if (ssRank && blRank)
                 {
                     return RankStatus.Ranked;
@@ -50,6 +53,11 @@ namespace SongRankedBadge
                 {
                     return RankStatus.ScoreSaber;
                 }
+                
+                if (curated)
+                {
+                    return RankStatus.Curated;
+                }
             }
 
             return RankStatus.None;
@@ -59,6 +67,7 @@ namespace SongRankedBadge
     internal enum RankStatus
     {
         None,
+        Curated,
         ScoreSaber,
         BeatLeader,
         Ranked // just ranked, means both
