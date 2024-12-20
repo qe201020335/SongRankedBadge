@@ -48,5 +48,12 @@ namespace SongRankedBadge.UI
             get => Config.SettingsMenuButton;
             set => Config.SettingsMenuButton = value;
         }
+        
+        [UIValue("ShowCurated")]
+        public bool ShowCurated
+        {
+            get => Config.ShowCurated;
+            set => Config.ShowCurated = value;
+        }
     }
 }

@@ -12,5 +12,6 @@ namespace SongRankedBadge.Configuration
         public virtual bool DifferentText { get; set; } = true;
         public virtual bool DifferentColor { get; set; } = true;
         public virtual bool SettingsMenuButton { get; set; } = false;
+        public virtual bool ShowCurated { get; set; } = true;
     }
 }

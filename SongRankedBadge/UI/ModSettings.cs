@@ -38,7 +38,14 @@ namespace SongRankedBadge.UI
         {
             get => Config.DifferentColor;
             set => Config.DifferentColor = value;
-        }        
+        }
+        
+        [UIValue("ShowCurated")]
+        public bool ShowCurated
+        {
+            get => Config.ShowCurated;
+            set => Config.ShowCurated = value;
+        }
         
         [UIValue("MenuSettings")]
         public bool MenuSettings

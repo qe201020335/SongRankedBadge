@@ -17,6 +17,7 @@ namespace SongRankedBadge
     {
         // DF166FFF
         private static readonly Color c_promoOG = new Color32(0xDF, 0x16, 0x6F, 0xFF);
+        private static readonly Color c_curated = new Color32(0x00,0xBC,0x8C, 0xFF);
         private static readonly Color c_ranked = c_promoOG; // same as the og promo 
         private static readonly Color c_blranked = new Color32(0x8B, 0x63, 0xBB, 0xFF);
         private static readonly Color c_ssranked = new Color32(0xED, 0xCC, 0x08, 0xFF);
@@ -24,6 +25,7 @@ namespace SongRankedBadge
         private static readonly Dictionary<RankStatus, Color> Colors = new Dictionary<RankStatus, Color>
         {
             [RankStatus.None] = c_promoOG,
+            [RankStatus.Curated] = c_curated,
             [RankStatus.Ranked] = c_ranked,
             [RankStatus.BeatLeader] = c_blranked,
             [RankStatus.ScoreSaber] = c_ssranked
@@ -32,6 +34,7 @@ namespace SongRankedBadge
         private static readonly Dictionary<RankStatus, string> Texts = new Dictionary<RankStatus, string>
         {
             [RankStatus.None] = "",
+            [RankStatus.Curated] = "Curated",
             [RankStatus.Ranked] = "Ranked",
             [RankStatus.BeatLeader] = "BL Ranked",
             [RankStatus.ScoreSaber] = "SS Ranked"
@@ -62,6 +65,10 @@ namespace SongRankedBadge
             try
             {
                 var isRanked = rankedStatus != RankStatus.None;
+                if (rankedStatus == RankStatus.Curated && !PluginConfig.Instance.ShowCurated)
+                {
+                    isRanked = false;
+                }
                 
                 ____promoBadgeGo.SetActive(isPromoted || isRanked);
 
