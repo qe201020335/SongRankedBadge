@@ -14,7 +14,6 @@
     <WarningLevel>4</WarningLevel>
     <LangVersion>8</LangVersion>
     <Nullable>enable</Nullable>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
