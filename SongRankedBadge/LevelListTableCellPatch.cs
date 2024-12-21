@@ -64,33 +64,33 @@ namespace SongRankedBadge
             
             try
             {
-                var isRanked = rankedStatus != RankStatus.None;
                 if (rankedStatus == RankStatus.Curated && !PluginConfig.Instance.ShowCurated)
                 {
-                    isRanked = false;
+                    rankedStatus = RankStatus.None;
                 }
                 
-                ____promoBadgeGo.SetActive(isPromoted || isRanked);
+                var shouldApply = rankedStatus != RankStatus.None;
+
+                ____promoBadgeGo.SetActive(isPromoted || shouldApply);
 
                 var promoTextGo = ____promoBadgeGo.transform.Find("PromoText").gameObject;
                 var localization = promoTextGo.GetComponent<LocalizedTextMeshProUGUI>();
                 var promoTextBg = ____promoBadgeGo.GetComponent<ImageView>();
                 // can't simply destroy the script, this cell may be reused.
-                localization.enabled = !isRanked; // no more translation :) 
+                localization.enabled = !shouldApply;
 
-                if (isRanked)
+                if (shouldApply)
                 {
                     // change the text and badge color
                     var promoText = promoTextGo.GetComponent<TMP_Text>();
-                    if (PluginConfig.Instance.DifferentColor)
-                    {
-                        promoTextBg.color = Colors[rankedStatus];
-                    }
 
-                    promoText.text = PluginConfig.Instance.DifferentText ? Texts[rankedStatus] : Texts[RankStatus.Ranked];
+                    promoTextBg.color = PluginConfig.Instance.DifferentColor ? Colors[rankedStatus] : c_promoOG;
+
+                    promoText.text = rankedStatus == RankStatus.Curated || PluginConfig.Instance.DifferentText ? Texts[rankedStatus] : Texts[RankStatus.Ranked];
                 }
                 else
                 {
+                    // the original text will be restored by the localization script
                     promoTextBg.color = c_promoOG;
                 }
             }

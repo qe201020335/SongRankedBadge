@@ -67,9 +67,9 @@ namespace SongRankedBadge
     internal enum RankStatus
     {
         None,
-        Curated,
         ScoreSaber,
         BeatLeader,
-        Ranked // just ranked, means both
+        Ranked, // just ranked, means both
+        Curated  // curated comes after ranked status
     }
 }
