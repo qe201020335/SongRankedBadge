@@ -48,7 +48,7 @@ namespace SongRankedBadge
             RankStatus rankedStatus = RankStatus.None;
             try
             {
-                var hash = SongCore.Utilities.Hashing.GetCustomLevelHash(beatmapLevel);
+                var hash = SongCore.Collections.GetCustomLevelHash(beatmapLevel.levelID);
                 rankedStatus = RankStatusManager.Instance.GetSongRankedStatus(hash);
             }
             catch (Exception e)
